@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+
+  app:
+   build:
+     context: ./app
+   volumes:
+      - ../src:/var/www
+
+
+  nginx:
+   build:
+     context: ./nginx
+   volumes:
+      - ../src:/var/www
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/sites/:/etc/nginx/sites-available
+      - ./nginx/conf.d/:/etc/nginx/conf.d
+   depends_on:
+      - app
+   ports:
+      - "80:80"
+      - "443:443"
+
+
+  db:
+   build:
+     context: ./db
+   ports:
+      - "3306:3306"
+   environment:
+      - MYSQL_DATABASE=mydb
+      - MYSQL_USER=myuser
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=docker
+   volumes:
+      - ./db/data.sql:/docker-entrypoint-initdb.d/data.sql
